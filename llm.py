@@ -46,8 +46,10 @@ Example outputs:
   "command_params": { "angle": 90, "direction": "clockwise" },
   "verbal_response": "Rotating 90 degrees clockwise."
 }
-
+in the "verbal_response" in the json file,
 write a short verbal response that will get passed to tts. make sure it's descriptive for the command.
+
+don't add the verbal response out of the json file. if the output includes anything but the requested json file, the program will crash.
 """
 
 def parse_command(user_text: str):
