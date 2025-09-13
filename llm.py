@@ -14,7 +14,7 @@ Schema:
       "y": int
   } OR {
       "angle": int,
-      "direction": "clockwise" | "counterclockwise"
+      "direction": "clockwise" | "counter-clockwise"
   } OR {
       "route_id": str,
       "speed": str,
@@ -26,9 +26,28 @@ Schema:
 Rules:
 - Output ONLY valid JSON.
 - Do not include explanations.
-- Direction must be "clockwise" or "counterclockwise".
+- Direction must be "clockwise" or "counter-clockwise".
+- If unsure, pick a valid default rather than inventing fields.
 
 If you include anything outside a JSON object, the system will break.
+
+Example outputs:
+
+1. Move to (10, 5):
+{
+  "command": "move_to",
+  "command_params": { "x": 10, "y": 5 },
+  "verbal_response": "Moving to position x=10, y=5."
+}
+
+2. Rotate 90 degrees clockwise:
+{
+  "command": "rotate",
+  "command_params": { "angle": 90, "direction": "clockwise" },
+  "verbal_response": "Rotating 90 degrees clockwise."
+}
+
+write a short verbal response that will get passed to tts. make sure it's descriptive for the command.
 """
 
 def parse_command(user_text: str):

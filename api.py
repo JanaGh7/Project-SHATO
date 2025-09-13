@@ -44,7 +44,8 @@ async def process_text(data: LLMRequest):
 
     # Step 2: Validate the LLM response using robot_validator
     try:
-        validated_params = validate_command(result)
+        llm_response = LLMResponse(**result)
+        validated_params = validate_command(llm_response)
         result.command_params = validated_params
         return result
     except ValueError as e:
