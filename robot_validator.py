@@ -1,6 +1,6 @@
+from schema import *
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, ValidationError, field_validator, ConfigDict
-from typing import Optional, Literal
+from pydantic import ValidationError
 import logging
 
 # Configure logging so only the message is printed (no timestamps, levels etc.)
@@ -10,38 +10,14 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(title="Robot Validator")
 
-# Define each command and its parameters
-class MoveToParams(BaseModel):
-    model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
-    x: float
-    y: float
 
-class RotateParams(BaseModel):
-    model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
-    angle: float
-    direction: Literal["clockwise", "counter-clockwise"] # Only allowed values
-
-class StartPatrolParams(BaseModel):
-    model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
-    route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
-    speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
-    repeat_count: Optional[int] = 1
-
-    @field_validator("repeat_count")
-    def check_repeat(cls, v):
-        if v is None:
-            return 1 # default value
-        if v == -1 or v >= 1: # allowed values
-            return v
-        raise ValueError("repeat_count must be >=1 or -1")
-
-class CommandPayload(BaseModel):
-    command: str # Command itself (validated in code)
-    command_params: dict # parameters
-    verbal_response: str # text the robot will say
+#just for checking if it works well
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.post("/execute_command")
-def execute_command(payload: CommandPayload):
+def execute_command(payload: LLMResponse):
     try:
         if payload.command == "move_to":
             try:
