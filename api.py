@@ -28,10 +28,10 @@ Notes:
 """
 
 from fastapi import FastAPI, HTTPException
-import re
 from schema import *
 from schema import LLMRequest, LLMResponse
 from llm import parse_command
+from robot_validator import validate_command  # import the validation function
 
 
 app = FastAPI(title="LLM Brain")
@@ -39,9 +39,16 @@ app = FastAPI(title="LLM Brain")
 
 @app.post("/process", response_model=LLMResponse)
 async def process_text(data: LLMRequest):
+    # Step 1: Call the LLM
     result = parse_command(data.input_text)
-    return result
 
+    # Step 2: Validate the LLM response using robot_validator
+    try:
+        validated_params = validate_command(result)
+        result.command_params = validated_params
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/health")
 def health():

@@ -3,15 +3,45 @@ from fastapi import FastAPI, HTTPException
 from pydantic import ValidationError
 import logging
 
-# Configure logging so only the message is printed (no timestamps, levels etc.)
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(title="Robot Validator")
 
+# Validation function (for api.py)
+def validate_command(payload: LLMResponse):
+    try:
+        if payload.command == "move_to":
+            params = MoveToParams(**payload.command_params)
+            validated = params.model_dump()
+        elif payload.command == "rotate":
+            params = RotateParams(**payload.command_params)
+            validated = params.model_dump()
+        elif payload.command == "start_patrol":
+            params = StartPatrolParams(**payload.command_params)
+            validated = params.model_dump()
+        else:
+            raise ValueError(f"Invalid command. Unknown command name '{payload.command}'")
 
-#just for checking if it works well
+        logger.info(f"[ROBOT-VALIDATOR-SUCCESS] Validated command '{payload.command}' with params {validated}")
+        return validated
+
+    except ValidationError as ve:
+        errors = []
+        for err in ve.errors():
+            if err["type"] == "missing":
+                errors.append(f"Missing required key '{err['loc'][0]}'")
+            elif err["type"] == "extra_forbidden":
+                errors.append(f"Unexpected key '{err['loc'][0]}'")
+            elif "repeat_count" in str(err["loc"]):
+                errors.append(f"{err['msg']}")
+        msg = "; ".join(errors) if errors else str(ve)
+        logger.error(f"[ROBOT-VALIDATOR-ERROR] {msg}")
+        raise ValueError(msg)
+
+# FastAPI endpoints (kept for independent testing)
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -19,59 +49,7 @@ def health():
 @app.post("/execute_command")
 def execute_command(payload: LLMResponse):
     try:
-        if payload.command == "move_to":
-            try:
-                params = MoveToParams(**payload.command_params)
-                validated = params.model_dump() # dictionary with validated fields
-            except ValidationError as ve:
-                for err in ve.errors(): # catch missing or extra parameters
-                    if err["type"] == "missing":
-                        raise ValueError("Invalid params for 'move_to': Missing required key '%s'" % err["loc"][0])
-                    if err["type"] == "extra_forbidden":
-                        raise ValueError("Invalid params for 'move_to': Unexpected key '%s'" % err["loc"][0])
-                raise ValueError("Invalid params for 'move_to': " + str(ve))
-
-        elif payload.command == "rotate":
-            try:
-                params = RotateParams(**payload.command_params)
-                validated = params.model_dump() # dictionary with validated fields
-            except ValidationError as ve:
-                for err in ve.errors(): # catch missing or extra parameters
-                    if err["type"] == "missing":
-                        raise ValueError("Invalid params for 'rotate': Missing required key '%s'" % err["loc"][0])
-                    if err["type"] == "extra_forbidden":
-                        raise ValueError("Invalid params for 'rotate': Unexpected key '%s'" % err["loc"][0])
-                raise ValueError("Invalid params for 'rotate': " + str(ve))
-            
-        elif payload.command == "start_patrol":
-            try:
-                params = StartPatrolParams(**payload.command_params)
-                validated = params.model_dump() # dictionary with validated fields
-            except ValidationError as ve:
-                for err in ve.errors(): # catch missing or extra parameters or invalid count value
-                    if err["type"] == "missing":
-                        raise ValueError("Invalid params for 'start_patrol': Missing required key '%s'" % err["loc"][0])
-                    if err["type"] == "extra_forbidden":
-                        raise ValueError("Invalid params for 'start_patrol': Unexpected key '%s'" % err["loc"][0])
-                    if "repeat_count" in str(err["loc"]):
-                        raise ValueError("Invalid params for 'start_patrol': " + err["msg"])
-                raise ValueError("Invalid params for 'start_patrol': " + str(ve))
-        else: # Invalid commend
-            raise ValueError(f" Invalid command. Reason: unknown command name '{payload.command}'")
-
-        # Success
-        logger.info(
-            f"[ROBOT-VALIDATOR-SUCCESS] Received and validated command: "
-            f"'{payload.command}' with params {validated}"
-        )
-
-        return {
-            "status": "validated",
-            "command": payload.command,
-            "params": validated
-        }
-
-    # Error
+        validated = validate_command(payload)
+        return {"status": "validated", "command": payload.command, "params": validated}
     except ValueError as e:
-        logger.error(f"[ROBOT-VALIDATOR-ERROR] {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
