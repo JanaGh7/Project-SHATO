@@ -17,8 +17,10 @@ class RotateParams(BaseModel):
 
 class StartPatrolParams(BaseModel):
     model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
-    route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
-    speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
+    # route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
+    route_id: str
+    # speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
+    speed: str
     repeat_count: Optional[int] = 1
 
     @field_validator("repeat_count")

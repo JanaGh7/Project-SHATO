@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama2
+    ports:
+      - "11434:11434"
+    volumes:
+      - ~/ollama:/root/.ollama
+      - ./ollama-entrypoint.sh:/entrypoint.sh  # Mount the script
+    entrypoint: ["/entrypoint.sh"]  # Use the mounted script
+
+  api:
+    build: .
+    image: llm-service
+    container_name: llm-service2
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+
+
+
+# if [ ! -d /root/.ollama/models/phi3-mini ]; then
+#   echo "Pulling phi3-mini model..."
+#   ollama pull phi3:mini
+# fi
+# echo "Starting Ollama server..."

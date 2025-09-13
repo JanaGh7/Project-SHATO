@@ -13,14 +13,21 @@ async def process_text(data: LLMRequest):
     # Step 1: Call the LLM
     result = parse_command(data.input_text)
 
+    # Log the raw LLM output for debugging
+    print("[LLM-RAW-OUTPUT]", result)
+
     # Step 2: Validate the LLM response using robot_validator
     try:
         llm_response = LLMResponse(**result)
         validated_params = validate_command(llm_response)
-        result.command_params = validated_params
+        result["command_params"] = validated_params
         return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Include full LLM output in the error for debugging
+        error_msg = f"Validation failed: {e}\nFull LLM output: {result}"
+        print("[LLM-VALIDATION-ERROR]", error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
+
 
 @app.get("/health")
 def health():

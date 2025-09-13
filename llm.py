@@ -1,6 +1,7 @@
 import requests
 import json
 import re
+import os
 
 SYSTEM_PROMPT = """
 You are a robot command parser.
@@ -24,33 +25,31 @@ Schema:
 }
 
 Rules:
-- Output ONLY valid JSON.
-- Do not include explanations.
+- Output ONLY a single valid JSON object.
+- Do not include explanations or text outside the JSON.
 - Direction must be "clockwise" or "counter-clockwise".
-- If unsure, pick a valid default rather than inventing fields.
-
-If you include anything outside a JSON object, the system will break.
-
-Example outputs:
-
-1. Move to (10, 5):
-{
-  "command": "move_to",
-  "command_params": { "x": 10, "y": 5 },
-  "verbal_response": "Moving to position x=10, y=5."
-}
-
-2. Rotate 90 degrees clockwise:
-{
-  "command": "rotate",
-  "command_params": { "angle": 90, "direction": "clockwise" },
-  "verbal_response": "Rotating 90 degrees clockwise."
-}
-in the "verbal_response" in the json file,
-write a short verbal response that will get passed to tts. make sure it's descriptive for the command.
-
-don't add the verbal response out of the json file. if the output includes anything but the requested json file, the program will crash.
+- If unsure, pick valid defaults rather than inventing extra fields.
+- in "verbal_response" say a verbal response the your input
 """
+
+# Use environment variable for Docker Compose networking
+OLLAMA_URL = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
+
+def extract_first_json(raw_output: str):
+    stack = []
+    start_idx = None
+    for i, char in enumerate(raw_output):
+        if char == '{':
+            if not stack:
+                start_idx = i
+            stack.append('{')
+        elif char == '}':
+            stack.pop()
+            if not stack and start_idx is not None:
+                return raw_output[start_idx:i+1]  # full JSON block
+    raise ValueError(f"No valid JSON found in model output:\n{raw_output}")
+
 
 def parse_command(user_text: str):
     payload = {
@@ -62,24 +61,16 @@ def parse_command(user_text: str):
         "stream": False
     }
 
-    response = requests.post("http://ollama:11434/api/chat", json=payload)
+    response = requests.post(f"{OLLAMA_URL}/api/chat", json=payload)
 
     if response.status_code != 200:
         raise RuntimeError(f"Ollama error {response.status_code}: {response.text}")
 
     data = response.json()
-
-    # New Ollama returns messages in choices
     raw_output = data.get("message", {}).get("content", "").strip()
 
     try:
-        # Extract JSON inside curly braces
-        match = re.search(r"\{.*\}", raw_output, re.DOTALL)
-        if not match:
-            raise ValueError("No JSON found in model output")
-
-        clean_json = match.group(0)
+        clean_json = extract_first_json(raw_output)
         return json.loads(clean_json)
-
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to parse JSON: {e}\nRaw output: {raw_output}")
