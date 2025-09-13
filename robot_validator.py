@@ -38,16 +38,10 @@ class StartPatrolParams(BaseModel):
 class CommandPayload(BaseModel):
     command: str # Command itself (validated in code)
     command_params: dict # parameters
-    verbal_response: Optional[str] = ""  
-
-@app.get("/")
-def root():
-    return "HELLLLLLO"    
+    verbal_response: str # text the robot will say
 
 @app.post("/execute_command")
 def execute_command(payload: CommandPayload):
-    logger.info(f"[VALIDATOR-RAW] received command={payload.command} command_params={payload.command_params}")
-    
     try:
         if payload.command == "move_to":
             try:
@@ -104,7 +98,4 @@ def execute_command(payload: CommandPayload):
     # Error
     except ValueError as e:
         logger.error(f"[ROBOT-VALIDATOR-ERROR] {str(e)}")
-        raise HTTPException(
-            status_code=400,
-            detail={"status": "rejected", "reason": str(e)}
-        )
+        raise HTTPException(status_code=400, detail=str(e))
