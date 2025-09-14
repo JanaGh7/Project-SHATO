@@ -28,13 +28,18 @@ The project provides a Docker setup so that all dependencies, models, and servic
    ```bash
    docker compose up --build
    ```
+   when you close it. run the following command before starting again
+   ```bash
+   docker compose down
+   ```
+   
 now you have 2 ports open,
-   1. llm-server on port 8000
-   2. ollama2 on port 11434
+   - llm-server on port 8000
+   - ollama2 on port 11434
 
-3. Keep the existing terminal open and start a new one
+4. Keep the existing terminal open and start a new one
 
-4. Run the following command to test:
+5. Run the following command to test:
    ```bash
    curl -X POST "http://localhost:8000/process"
    -H "Content-Type: application/json"
