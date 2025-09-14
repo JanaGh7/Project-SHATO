@@ -36,7 +36,11 @@ Additional rules:
 - Ensure numeric fields are numbers, not strings with text.
 - Never include fields that are not in the schema.
 - Always produce a "verbal_response" describing what the robot will do in natural language.
-
+- if there are any missing parameter, fill it with "null" and don't add anything else.
+- There is always a verbal response, describing what the robot will do in natural language. all the schemas include it.
+- repeat_count must always be a non-negative integer (0 = never run, 1 = run once, 2 = run twice, etc.). Never output negative numbers.
+- for the route_id, read the input and provide a string to describe the route_id. the input might not be ixplicit.
+for example: if the input said the first rout, then the id is 1.
 Example 1:
 Input: "Move the robot to coordinates X=5, Y=10"
 Output:

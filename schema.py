@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, ConfigDict
-from typing import Optional, Literal, Union
+from typing import Optional, Literal, Dict, Any
 
 class LLMRequest(BaseModel):
     input_text: str
@@ -18,7 +18,7 @@ class RotateParams(BaseModel):
 class StartPatrolParams(BaseModel):
     model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
     # route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
-    route_id: str
+    route_id: str = "default_route"
     # speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
     speed: str
     repeat_count: Optional[int] = 1
@@ -33,5 +33,5 @@ class StartPatrolParams(BaseModel):
 
 class LLMResponse(BaseModel):
     command: Literal["move_to", "rotate", "start_patrol"]
-    command_params: Union[MoveToParams, RotateParams, StartPatrolParams]
+    command_params: Dict[str, Any]
     verbal_response: str

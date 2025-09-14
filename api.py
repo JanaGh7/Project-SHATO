@@ -3,6 +3,7 @@ from schema import *
 from schema import LLMRequest, LLMResponse
 from llm import parse_command
 from robot_validator import validate_command  # import the validation function
+from pydantic import ValidationError
 
 
 app = FastAPI(title="LLM Brain")
@@ -22,10 +23,10 @@ async def process_text(data: LLMRequest):
         validated_params = validate_command(llm_response)
         result["command_params"] = validated_params
         return result
-    except Exception as e:
+    except (ValidationError, ValueError) as e:
         # Include full LLM output in the error for debugging
         error_msg = f"Validation failed: {e}\nFull LLM output: {result}"
-        print("[LLM-VALIDATION-ERROR]", error_msg)
+        # print("[LLM-VALIDATION-ERROR]", error_msg)
         raise HTTPException(status_code=400, detail=error_msg)
 
 

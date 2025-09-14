@@ -8,7 +8,13 @@ ollama serve &
 echo "Waiting for Ollama server to start..."
 sleep 5
 
-ollama pull phi3:mini
+# Check if phi3:mini already exists
+if ollama list | grep -q "phi3:mini"; then
+    echo "Model phi3:mini already available, skipping pull."
+else
+    echo "Pulling phi3:mini model..."
+    ollama pull phi3:mini
+fi
 
 # Keep the container running
 echo "Ollama is ready and serving models..."
