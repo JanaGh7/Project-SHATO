@@ -1,12 +1,20 @@
 # Project-SHATO
 MIA AI Training'26 Final Project: This project aims to transform SHATO, an autonomous robot, into an intelligent,  voice-controlled assistant.
 
-## Robot Validator Service
+## Project Files and Their Roles
 
-This service validates robot commands against a strict schema.  
-It ensures only known commands with correct parameters are accepted, and logs success/error messages.
+- **api.py**: Main FastAPI application that handles `/process` POST requests and `/health` checks. Connects the LLM output with the robot validator.  
+- **robot_validator.py**: Validates commands against a strict schema, logs successes and errors, and ensures only correct parameters are accepted.  
+- **llm.py**: Interfaces with the language model (Ollama), parses natural language input into structured JSON commands.  
+- **schema.py**: Defines Pydantic models for command validation and response structure, ensuring type safety and strict parameter checks.  
+- **Dockerfile**: Builds the `llm-service` container with Python environment and dependencies.  
+- **docker-compose.yml**: Orchestrates the multi-container setup including `ollama` and `llm-service`, exposing necessary ports and handling dependencies.  
+- **ollama-entrypoint.sh**: Custom entrypoint script for the Ollama container that starts the server and pulls required models if missing.  
+- **requirements.txt**: Lists Python dependencies for the FastAPI service.  
 
 ---
+
+The project provides a Docker setup so that all dependencies, models, and services are installed automatically.
 
 ### How to Run
 
@@ -16,22 +24,23 @@ It ensures only known commands with correct parameters are accepted, and logs su
    cd Project-SHATO
    ```
 
-2. Install dependencies:
-  ```bash
-   pip install -r requirements.txt
-  ```
-3. Start the service:
+2. Start the service:
    ```bash
-   uvicorn robot_validator:app --reload --port 9004
+   docker compose up --build
    ```
+now you have 2 ports open,
+   1. llm-server on port 8000
+   2. ollama2 on port 11434
 
-4. Open the API docs in your browser:
-   http://127.0.0.1:9004/docs
+3. Keep the existing terminal open and start a new one
 
-5. Test:
-   valid example:
-   {
-  "command": "move_to",
-  "command_params": {"x": 5, "y": 7},
-  "verbal_response": "Moving now"
-}
+4. Run the following command to test:
+   ```bash
+   curl -X POST "http://localhost:8000/process"
+   -H "Content-Type: application/json"
+   -d '{
+     "input_text": "move to coordinates x=5, y=7"
+   }
+   ```
+what you write in the parameter of "input_text" is what the user will say to the robot.
+to test any other command just write here what you will say to the robot.
