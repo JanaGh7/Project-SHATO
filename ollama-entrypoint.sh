@@ -8,13 +8,7 @@ ollama serve &
 echo "Waiting for Ollama server to start..."
 sleep 5
 
-# Check via API instead of filesystem
-if curl -s http://localhost:11434/api/tags | grep -q '"name":"phi3:mini"'; then
-    echo "phi3:mini model already exists."
-else
-    echo "Pulling phi3-mini model..."
-    ollama pull phi3:mini
-fi
+ollama pull phi3:mini
 
 # Keep the container running
 echo "Ollama is ready and serving models..."

@@ -7,7 +7,7 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ~/ollama:/root/.ollama
+      - ./ollama:/root/.ollama
       - ./ollama-entrypoint.sh:/entrypoint.sh  # Mount the script
     entrypoint: ["/entrypoint.sh"]  # Use the mounted script
 
@@ -24,12 +24,3 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
-
-
-
-
-# if [ ! -d /root/.ollama/models/phi3-mini ]; then
-#   echo "Pulling phi3-mini model..."
-#   ollama pull phi3:mini
-# fi
-# echo "Starting Ollama server..."
