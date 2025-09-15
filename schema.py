@@ -35,3 +35,5 @@ class LLMResponse(BaseModel):
     command: Literal["move_to", "rotate", "start_patrol"]
     command_params: Dict[str, Any]
     verbal_response: str
+    audio_base64: Optional[str] = None
+
