@@ -1,2 +1,8 @@
-# Ignore virtual environment
-venv/
+ollama/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.env
+*.log
