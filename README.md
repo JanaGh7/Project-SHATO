@@ -41,11 +41,7 @@ now you have 2 ports open,
 
 5. Run the following command to test:
    ```bash
-   curl -X POST "http://localhost:8000/process"
-   -H "Content-Type: application/json"
-   -d '{
-     "input_text": "move to coordinates x=5, y=7"
-   }
+      curl -X POST http://localhost:8000/process -H "Content-Type: application/json" -d "{\"input_text\":\"Move the robot to X 5 Y 10\"}"
    ```
 what you write in the parameter of "input_text" is what the user will say to the robot.
 to test any other command just write here what you will say to the robot.

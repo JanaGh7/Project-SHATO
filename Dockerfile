@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 8000
 
 # 7. Run the FastAPI server with Uvicorn
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["echo", "Specify a command with docker-compose override"]
 
 
 # docker build -t llm-service .

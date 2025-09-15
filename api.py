@@ -4,9 +4,10 @@ from schema import LLMRequest, LLMResponse
 from llm import parse_command
 from robot_validator import validate_command  # import the validation function
 from pydantic import ValidationError
-
+import requests
 
 app = FastAPI(title="LLM Brain")
+TTS_URL = "http://tts-service:8000/tts"  # points to your TTS container
 
 
 @app.post("/process", response_model=LLMResponse)
@@ -22,6 +23,11 @@ async def process_text(data: LLMRequest):
         llm_response = LLMResponse(**result)
         validated_params = validate_command(llm_response)
         result["command_params"] = validated_params
+        tts_resp = requests.post(TTS_URL, json={"text": llm_response.verbal_response})
+        if tts_resp.status_code != 200:
+            raise HTTPException(status_code=500, detail="TTS service failed")
+        # Add audio to result
+        result["audio_base64"] = tts_resp.json().get("audio_base64")
         return result
     except (ValidationError, ValueError) as e:
         # Include full LLM output in the error for debugging
