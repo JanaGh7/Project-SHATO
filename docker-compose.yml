@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama2
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+      - ./ollama-entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+
+  api:
+    build: .
+    container_name: llm-service2
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - ollama
+      - tts-service
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - TTS_URL=http://tts-service:8000/tts
+
+  tts-service:
+    build: .
+    container_name: tts-service
+    ports:
+      - "8100:8000"
+    volumes:
+      - .:/app
+    command: uvicorn tts:app --host 0.0.0.0 --port 8000
