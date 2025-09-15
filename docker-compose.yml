@@ -24,3 +24,14 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
+  
+  ui:
+    build: ./ui
+    container_name: gradio-ui
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./ui:/app
+    command: python ui.py
+    depends_on:
+      - api
