@@ -14,7 +14,7 @@ how to run?
    
 5. docker build -t llm-service ./llm-service
 
-6. docker run -d \
+6. docker run --rm -d \
   --name llm-service \
   -p 5002:8000 \
   -e OLLAMA_HOST=http://host.docker.internal:11434 \

@@ -1,47 +1,63 @@
 version: "3.9"
 
 services:
+  orchestrator-api:
+    build: ./orchestrator-api
+    container_name: orchestrator-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - stt-service
+      - llm-service
+      - tts-service
+      - robot-validator-api
+      - ui-service
+      - ollama
+
+  stt-service:
+    build: ./stt-service
+    container_name: stt-service
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./stt_models:/root/.cache
+
+  llm-service:
+    build: ./llm-service
+    container_name: llm-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+  tts-service:
+    build: ./tts-service
+    container_name: tts-service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./tts_models:/root/.cache
+
+  validation-service:
+    build: ./validation-service
+    container_name: validation-service
+    ports:
+      - "8004:8000"
+
+  ui-service:
+    build: ./ui-service
+    container_name: ui-service
+    ports:
+      - "8005:8000"
+
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama2
+    container_name: ollama
     ports:
       - "11434:11434"
     volumes:
       - ./ollama:/root/.ollama
-      - ./ollama-entrypoint.sh:/entrypoint.sh
+      - ./ollama/ollama-entrypoint.sh:/entrypoint.sh
     entrypoint: ["/entrypoint.sh"]
-
-  api:
-    build: .
-    container_name: llm-service2
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
-    command: uvicorn api:app --host 0.0.0.0 --port 8000
-    depends_on:
-      - ollama
-      - tts-service
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-
-
-  tts-service:
-    build: .
-    container_name: tts-service
-    ports:
-      - "8100:8000"
-    volumes:
-      - .:/app
-    command: uvicorn tts:app --host 0.0.0.0 --port 8000
-
-  ui:
-    build:
-      context: ./ui
-      dockerfile: Dockerfile
-    ports:
-      - "7860:7860"
-    depends_on:
-      - api
-
-  
