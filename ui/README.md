@@ -6,3 +6,6 @@
 3. curl http://localhost:7860
 
 4. http://localhost:7860
+
+5. you can record and play the sound for yourself or input text
+
