@@ -1,5 +1,5 @@
 FROM python:3.11
-WORKDIR /ui
+WORKDIR /app
 
 # install gradio
 COPY requirements.txt .
