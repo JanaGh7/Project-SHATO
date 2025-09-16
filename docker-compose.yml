@@ -33,21 +33,6 @@ services:
       - "8100:8000"
     volumes:
       - .:/app
-<<<<<<< Updated upstream
-    command: uvicorn tts:app --host 0.0.0.0 --port 800
-  
-  ui:
-    build: ./ui
-    container_name: gradio-ui
-    ports:
-      - "7860:7860"
-    volumes:
-      - ./ui:/app
-    command: python ui.py
-    depends_on:
-      - api
-
-=======
     command: uvicorn tts:app --host 0.0.0.0 --port 8000
 
   ui:
@@ -60,4 +45,3 @@ services:
       - api
 
   
->>>>>>> Stashed changes
