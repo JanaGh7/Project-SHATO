@@ -2,9 +2,6 @@ fastapi
 uvicorn
 torch
 transformers
-datasets
-torchcodec
-sounddevice 
 soundfile 
 numpy
-sounddevice
+python-multipart

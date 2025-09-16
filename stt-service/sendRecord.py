@@ -1,16 +1,22 @@
-# client_record_and_send.py
 import sounddevice as sd
+import soundfile as sf
 import requests
-import numpy as np
 
-SERVER = "http://127.0.0.1:8000/transcribe"
+SERVER = "http://127.0.0.1:5001/transcribe"
 samplerate = 16000
-duration = 8
+duration = 5
+filename = "recorded.wav"
 
-print("Recording for", duration, "seconds...")
-rec = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='float32')
+print(f"🎙️ Recording {duration} seconds...")
+rec = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype="float32")
 sd.wait()
-audio = rec.squeeze().astype('float32').tolist()
 
-resp = requests.post(SERVER, json={"audio_arr": audio, "samplerate": samplerate})
-print("Server response:", resp.status_code, resp.text)
+# Save to file
+sf.write(filename, rec, samplerate)
+print(f"✅ Saved recording to {filename}")
+
+# Send to STT service
+with open(filename, "rb") as f:
+    resp = requests.post(SERVER, files={"file": f})
+
+print("📝 Transcription:", resp.json())
