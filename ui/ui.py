@@ -56,8 +56,7 @@ with gr.Blocks() as demo:
         audio_input = gr.Audio(sources=["microphone"], type="filepath", label="Record Command")
         stt_output = gr.Textbox(label="Recognized Speech")
         status_out = gr.Textbox(label="Execution Status")
-        llm_response = gr.Textbox(label="Robot Response", lines=2, interactive=False, wrap=True)
-
+        llm_response = gr.Textbox(label="Robot Response" , lines= 3)
         audio_out = gr.Audio(label="Robot Speech", type="filepath")
         
         audio_input.change(
@@ -69,7 +68,7 @@ with gr.Blocks() as demo:
     with gr.Tab("⌨️ Text Command"):
         text_input = gr.Textbox(label="Enter Command Text")
         status_out2 = gr.Textbox(label="Execution Status")
-        llm_response2 = gr.Textbox(label="Robot Response", lines=2, interactive=False, wrap=True)
+        llm_response2 = gr.Textbox(label="Robot Response",  lines= 3)
         audio_out2 = gr.Audio(label="Robot Speech", type="filepath")
         
         text_input.submit(
