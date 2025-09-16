@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from validator_service.schema import LLMRequest, LLMResponse
+from schema import LLMRequest, LLMResponse
 from pydantic import ValidationError
 import requests
 
