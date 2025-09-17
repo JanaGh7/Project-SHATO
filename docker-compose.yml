@@ -47,7 +47,7 @@ services:
       - "8004:8000"
 
   ui-service:
-    build: ./ui
+    build: ./ui-service
     container_name: ui-service
     ports:
       - "7860:7860"
