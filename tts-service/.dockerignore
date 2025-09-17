@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.wav
+*.mp3
+.huggingface/
+.cache/
+.git/
+.DS_Store

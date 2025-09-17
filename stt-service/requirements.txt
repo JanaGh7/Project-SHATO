@@ -1,8 +1,8 @@
+numpy<2
 fastapi
 uvicorn
 torch
 librosa
 transformers
-soundfile 
-numpy
+soundfile
 python-multipart

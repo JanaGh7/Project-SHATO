@@ -1,0 +1,22 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtualenv or env files
+.env
+venv/
+*.env
+
+# Ignore audio recordings and logs
+*.wav
+*.mp3
+*.log
+
+# Ignore Hugging Face cache
+.huggingface/
+.cache/
+
+# Git and OS junk
+.git/
+.DS_Store
