@@ -85,6 +85,7 @@ def extract_first_json(raw_output: str):
 def parse_command(user_text: str):
     payload = {
         "model": "phi3:mini",
+        "format": "json",
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_text}
