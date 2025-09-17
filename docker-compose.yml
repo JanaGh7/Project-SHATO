@@ -10,7 +10,6 @@ services:
       - llm-service
       - tts-service
       - validation-service
-      - validation-service
       - ui-service
       - ollama
 

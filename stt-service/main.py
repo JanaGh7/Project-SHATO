@@ -1,6 +1,7 @@
 import io
 import numpy as np
 import soundfile as sf
+import librosa
 import io
 from fastapi import FastAPI, UploadFile, File
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
@@ -20,17 +21,21 @@ def load_model():
 
 @app.post("/transcribe")
 async def transcribe(file: UploadFile = File(...)):
-    audio_bytes = await file.read()
-    audio, samplerate = sf.read(io.BytesIO(audio_bytes), dtype="float32")
-    if samplerate != 16000:
-        audio = librosa.resample(audio, orig_sr=samplerate, target_sr=16000)
-        samplerate = 16000
+    try:
+        audio_bytes = await file.read()
+        audio, samplerate = sf.read(io.BytesIO(audio_bytes), dtype="float32")
 
-    if audio.ndim > 1:
-        audio = np.mean(audio, axis=1)
+        if audio.ndim > 1:
+            audio = np.mean(audio, axis=1)
 
-    inputs = processor(audio, sampling_rate=samplerate, return_tensors="pt")
-    predicted_ids = model.generate(inputs["input_features"])
-    transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+        if samplerate != 16000:
+            audio = librosa.resample(audio, orig_sr=samplerate, target_sr=16000)
+            samplerate = 16000
 
-    return {"transcription": transcription[0]}
+        inputs = processor(audio, sampling_rate=samplerate, return_tensors="pt")
+        predicted_ids = model.generate(inputs["input_features"])
+        transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+
+        return {"transcription": transcription[0]}
+    except Exception as e:
+        return {"error": str(e)}
