@@ -1,7 +1,8 @@
+numpy<2
 fastapi
 uvicorn
-torch
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.2+cpu
 transformers
-soundfile 
-numpy
+soundfile
 python-multipart
