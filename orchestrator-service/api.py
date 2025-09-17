@@ -28,11 +28,11 @@ async def process_text(data: LLMRequest):
     try:
         validator_resp = requests.post(VALIDATOR_SERVICE_URL, json=result)
         if validator_resp.status_code != 200:
-            raise HTTPException(status_code=500, detail="Validator service failed")
+            raise HTTPException(status_code=500, detail=  result["verbal_response"] )
         validated_params = validator_resp.json().get("params")
         result["command_params"] = validated_params
     except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Validator service request failed: {e}")
+        raise HTTPException(status_code=500, detail=  result["verbal_response"] )
 
     # Step 3: Call TTS service
     try:

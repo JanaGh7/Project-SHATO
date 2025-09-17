@@ -44,7 +44,7 @@ def run_orch(stt_text):
             return status, response, audio_out
         else:
             status = "FAILED"
-            detail = data.get("detail", "Unknown error")
+            detail = data.get("detail", "")
             return status, detail, None
     except Exception as e:
         return "FAILED", f"[EXCEPTION] {str(e)}", None
