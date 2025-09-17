@@ -5,8 +5,8 @@ import requests
 
 app = FastAPI(title="LLM Brain")
 
-LLM_SERVICE_URL = "http://llm-service:8000/parse"  # LLM service endpoint
-VALIDATOR_SERVICE_URL = "http://validator-service:8000/validate"  # Validator service endpoint
+LLM_SERVICE_URL = "http://llm-service:8000/generate_command"  # LLM service endpoint
+VALIDATOR_SERVICE_URL = "http://validation-service:8000/execute_command"  # Validator service endpoint
 TTS_URL = "http://tts-service:8000/tts"  # TTS service endpoint
 
 
@@ -29,7 +29,7 @@ async def process_text(data: LLMRequest):
         validator_resp = requests.post(VALIDATOR_SERVICE_URL, json=result)
         if validator_resp.status_code != 200:
             raise HTTPException(status_code=500, detail="Validator service failed")
-        validated_params = validator_resp.json().get("command_params")
+        validated_params = validator_resp.json().get("params")
         result["command_params"] = validated_params
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Validator service request failed: {e}")

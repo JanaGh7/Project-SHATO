@@ -4,8 +4,8 @@ import base64
 import tempfile
 
 # --- Service Endpoints ---
-STT_URL = "http://stt:5001/transcribe"
-ORCH_URL = "http://llm-service2:8000/process"   # FastAPI orchestrator
+STT_URL = "http://stt-service:8000/transcribe"
+ORCH_URL = "http://orchestrator-service:8000/process"   # FastAPI orchestrator
 
 def b64_to_wav(audio_b64):
     """Convert base64 audio to a temporary WAV file and return its path"""
