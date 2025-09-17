@@ -2,15 +2,15 @@ version: "3.9"
 
 services:
   orchestrator-api:
-    build: ./orchestrator-api
-    container_name: orchestrator-api
+    build: ./orchestrator-service
+    container_name: orchestrator-service
     ports:
       - "8000:8000"
     depends_on:
       - stt-service
       - llm-service
       - tts-service
-      - robot-validator-api
+      - validation-service
       - ui-service
       - ollama
 
