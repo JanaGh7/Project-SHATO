@@ -1,5 +1,6 @@
 import numpy as np
 import soundfile as sf
+import librosa
 import io
 from fastapi import FastAPI, UploadFile, File
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
@@ -17,6 +18,9 @@ async def transcribe(file: UploadFile = File(...)):
     # Read WAV file
     audio_bytes = await file.read()
     audio, samplerate = sf.read(io.BytesIO(audio_bytes), dtype="float32")
+    if samplerate != 16000:
+        audio = librosa.resample(audio, orig_sr=samplerate, target_sr=16000)
+        samplerate = 16000
 
     # Ensure mono
     if audio.ndim > 1:
