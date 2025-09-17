@@ -77,6 +77,6 @@ with gr.Blocks() as demo:
             outputs=[status_out2, llm_response2, audio_out2]
         )
     
-    gr.Markdown("## TEST UI VERSION 1")
+    gr.Markdown("## TEST UI VERSION 3")
 
 demo.launch(server_name="0.0.0.0", server_port=7860)
