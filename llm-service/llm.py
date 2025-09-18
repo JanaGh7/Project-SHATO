@@ -111,7 +111,7 @@ def parse_command(user_text: str):
         "stream": False
     }
 
-    response = requests.post(f"{OLLAMA_URL}/api/chat", json=payload)
+    response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload)
 
     if response.status_code != 200:
         raise RuntimeError(f"Ollama error {response.status_code}: {response.text}")
