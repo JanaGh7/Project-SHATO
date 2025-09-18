@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Optional, Literal, Dict, Any
 
 class LLMRequest(BaseModel):
-    input_text: str
+    input_text: Optional[str]
 
 # Define each command and its parameters
 class MoveToParams(BaseModel):
@@ -17,10 +17,8 @@ class RotateParams(BaseModel):
 
 class StartPatrolParams(BaseModel):
     model_config = ConfigDict(extra="forbid") # Extra parameters are forbidden
-    # route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
-    route_id: str = "default_route"
-    # speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
-    speed: str
+    route_id: Literal["first_floor", "bedrooms", "second_floor"] # Only allowed values
+    speed: Optional[Literal["slow", "medium", "fast"]] = "medium" # Only allowed values, default -> Medium
     repeat_count: Optional[int] = 1
 
     @field_validator("repeat_count")
@@ -32,8 +30,8 @@ class StartPatrolParams(BaseModel):
         raise ValueError("repeat_count must be >=1 or -1")
 
 class LLMResponse(BaseModel):
-    command: Literal["move_to", "rotate", "start_patrol"]
+    command: Optional[Literal["move_to", "rotate", "start_patrol"]]
     command_params: Dict[str, Any]
-    verbal_response: str
+    verbal_response: Optional[str]
     audio_base64: Optional[str] = None
 

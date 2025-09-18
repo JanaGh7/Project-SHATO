@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException
-from schema import LLMRequest, LLMResponse
-from pydantic import ValidationError
+from fastapi import FastAPI, HTTPException, Response
+from schema import LLMRequest
 import requests
 
 app = FastAPI(title="LLM Brain")
@@ -10,39 +9,46 @@ VALIDATOR_SERVICE_URL = "http://validation-service:8000/execute_command"  # Vali
 TTS_URL = "http://tts-service:8000/tts"  # TTS service endpoint
 
 
-@app.post("/process", response_model=LLMResponse)
-async def process_text(data: LLMRequest):
+@app.post("/process")
+async def process_text(data: LLMRequest, response: Response):
     # Step 1: Call the LLM service
     try:
         llm_resp = requests.post(LLM_SERVICE_URL, json={"input_text": data.input_text})
-        if llm_resp.status_code != 200:
-            raise HTTPException(status_code=500, detail="LLM service failed")
-        result = llm_resp.json()
+        llm_resp.raise_for_status()
+        raw_text = llm_resp.text
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"LLM service request failed: {e}")
 
     # Log the raw LLM output for debugging
-    print("[LLM-RAW-OUTPUT]", result)
+    print("[LLM-RAW-OUTPUT]", raw_text)
 
-    # Step 2: Validate the LLM response via validator service
+    # Step 2: Send raw LLM text to Validator
     try:
-        validator_resp = requests.post(VALIDATOR_SERVICE_URL, json=result)
-        if validator_resp.status_code != 200:
-            raise HTTPException(status_code=500, detail=  result["verbal_response"] )
-        validated_params = validator_resp.json().get("params")
-        result["command_params"] = validated_params
+        validator_resp = requests.post(VALIDATOR_SERVICE_URL, json={"raw_text": raw_text})
+        status_code = validator_resp.status_code
+        result = validator_resp.json()
     except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=  result["verbal_response"] )
+        raise HTTPException(status_code=500, detail=f"Validator service request failed: {e}")
 
-    # Step 3: Call TTS service
+    # Step 3: Handle TTS based on validator status
     try:
-        tts_resp = requests.post(TTS_URL, json={"text": result.get("verbal_response", "")})
-        if tts_resp.status_code != 200:
-            raise HTTPException(status_code=500, detail="TTS service failed")
-        result["audio_base64"] = tts_resp.json().get("audio_base64")
+        if status_code in (200, 360):
+            tts_text = result.get("verbal_response", "")
+        elif status_code == 400:
+            tts_text = "the llm didn't work properly, please try again"
+            result["verbal_response"] = tts_text  # overwrite with static message
+        else:
+            tts_text = ""
+
+        if tts_text:
+            tts_resp = requests.post(TTS_URL, json={"text": tts_text})
+            tts_resp.raise_for_status()
+            result["audio_base64"] = tts_resp.json().get("audio_base64")
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"TTS service request failed: {e}")
 
+    # Preserve validator's status code
+    response.status_code = status_code
     return result
 
 
@@ -54,4 +60,3 @@ def health():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api:app", host="0.0.0.0", port=8000)
- 

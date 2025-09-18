@@ -28,8 +28,8 @@ Command-specific rules for command_params:
    - direction: "clockwise" or "counter-clockwise" only
 
 3. "start_patrol":
-   - route_id: string (any string identifier for the route)
-   - speed: string (e.g., "slow", "medium", "fast")
+   - route_id: "first_floor", "bedrooms", "second_floor" only
+   - speed: "slow", "medium", "fast" only, 'medium' is the default
    - repeat_count: integer >=1 or -1 (optional, default = 1)
 
 Additional rules:
@@ -39,11 +39,11 @@ Additional rules:
 - Ensure numeric fields are numbers, not strings with text.
 - Never include fields that are not in the schema.
 - Always produce a "verbal_response" describing what the robot will do in natural language.
-- if there are any missing parameter, fill it with "null" and don't add anything else.
+- if there are any missing parameter, fill it with "null" and tell the used that this key is missing.
+for example: if 'x'=null, the verbal_repsonse should be 'please specify the value for the x axis'
 - There is always a verbal response, describing what the robot will do in natural language. all the schemas include it.
 - repeat_count must always be a non-negative integer (0 = never run, 1 = run once, 2 = run twice, etc.). Never output negative numbers.
-- for the route_id, read the input and provide a string to describe the route_id. the input might not be ixplicit.
-for example: if the input said the first rout, then the id is 1.
+
 Example 1:
 Input: "Move the robot to coordinates X=5, Y=10"
 Output:
