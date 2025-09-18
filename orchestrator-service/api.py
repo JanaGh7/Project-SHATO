@@ -34,7 +34,7 @@ async def process_text(data: LLMRequest, response: Response):
     try:
         if status_code in (200, 360):
             tts_text = result.get("verbal_response", "")
-        elif status_code == 400:
+        elif status_code in (400, 401):
             tts_text = "the llm didn't work properly, please try again"
             result["verbal_response"] = tts_text  # overwrite with static message
         else:

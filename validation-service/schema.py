@@ -30,8 +30,7 @@ class StartPatrolParams(BaseModel):
         raise ValueError("repeat_count must be >=1 or -1")
 
 class LLMResponse(BaseModel):
-    command: Optional[Literal["move_to", "rotate", "start_patrol"]]
+    command: Optional[str]
     command_params: Dict[str, Any]
     verbal_response: Optional[str]
-    audio_base64: Optional[str] = None
 

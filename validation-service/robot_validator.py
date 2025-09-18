@@ -59,24 +59,18 @@ async def execute_command(request: Request):
     Validator endpoint.
     """
     thing = await request.json()
-    try:
-        payload = json.loads(thing.get("raw_text"))
-    except Exception:
-        # Case: completely invalid JSON (can't even parse)
-        return JSONResponse(
-            status_code=400,
-            content={
-                "status_message": "[LLM-VALIDATOR-ERROR]: the LLM couldn't generate a correct json. please try again"
-            }
-        )
+    raw_text = thing.get("raw_text")
+    if isinstance(raw_text, str):
+        payload = json.loads(raw_text)
+    else:
+        payload = raw_text
 
     try:
         # Try parsing into LLMResponse (will fail if JSON schema is totally wrong)
         llm_payload = LLMResponse(**payload)
-
         # Extra guard: if command is missing or null → treat as invalid command
         if not llm_payload.command or (llm_payload.command not in ['move_to', 'rotate', 'start_patrol']):
-            status_message = "[ROBOT-VALIDATOR-ERROR] Invalid command. Reason: Command is missing or null"
+            status_message = "[ROBOT-VALIDATOR-ERROR] Invalid command. Reason: Command is missing or invalid"
             response = payload.copy()
             response["status_message"] = status_message
             return JSONResponse(status_code=360, content=response)
