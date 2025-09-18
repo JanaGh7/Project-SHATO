@@ -7,3 +7,6 @@ __pycache__/
 .env
 *.log
 recorded.wav
+stt_models/
+tts_models/
+output.wav
