@@ -4,6 +4,8 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
+# Copy requiremets
+COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --upgrade pip && \
